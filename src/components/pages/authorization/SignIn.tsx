@@ -11,11 +11,13 @@ import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import {api} from "../../api/apiSlice.ts";
+import {generalIsAuthChange} from "../../generalSlice.ts";
+import {useDispatch} from "react-redux";
 
 
 
 export default function SignIn() {
-    // const dispatch = useDispatch();
+    const dispatch = useDispatch();
     const [authorization, {isError}] = api.useAuthorizationMutation()
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -25,7 +27,10 @@ export default function SignIn() {
             password: formData.get('password'),
         }
         await authorization(body).unwrap()
-            .then(data => {console.log(data)})
+            .then(data => {
+                localStorage.setItem('jwt', data);
+                dispatch(generalIsAuthChange(true))
+            })
             .catch(error => {console.log(error)});
     };
 
@@ -86,7 +91,7 @@ export default function SignIn() {
                                 control={<Checkbox value="remember" color="primary" />}
                                 label="Запомнить меня"
                             />
-                            {isError && 'Ошибка авторизации'}
+                            {isError && <div>'Ошибка авторизации'</div>}
                             <Button
                                 type="submit"
                                 fullWidth
